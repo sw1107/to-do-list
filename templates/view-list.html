@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block styling %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<div>
+    {{ wtf.quick_form(task_form, novalidate=True, extra_classes="task_form") }}
+</div>
+<div>
+    <h1>To Do</h1>
+    <ul>
+        {% for task in incomplete_tasks %}
+        <li>
+            <a href="{{ url_for('mark_complete', list_id=list_id, task_id=task.id) }}" class="link-primary">✔️</a>
+            {{ task.task_description }}, due {{ task.due_date}}
+            <a href="{{ url_for('delete_task', list_id=list_id, task_id=task.id) }}" class="link-primary">❌</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <h1>Completed</h1>
+        <ul>
+        {% for task in complete_tasks %}
+        <li> {{ task.task_description }}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div>
+    <a href="{{ url_for('delete_list', list_id=list_id) }}">Delete List</a>
+</div>
+
+{% endblock %}
