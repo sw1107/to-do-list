@@ -2,8 +2,10 @@ from datetime import date
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, LoginManager, login_user, current_user, logout_user
 from sqlalchemy.orm import relationship
-from forms import TaskForm, NewListForm
+from forms import TaskForm, NewListForm, RegisterForm, LoginForm
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -15,12 +17,22 @@ db = SQLAlchemy(app)
 
 app.config['SECRET_KEY'] = 'secretsecretsecret'
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 class List(db.Model):
     __tablename__ = "lists"
     id = db.Column(db.Integer, primary_key=True)
     list_name = db.Column(db.String(250), nullable=True)
     task = relationship("Task", back_populates="parent_list")
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    parent_user = relationship("User", back_populates="list")
 
 
 class Task(db.Model):
@@ -32,10 +44,19 @@ class Task(db.Model):
     list_id = db.Column(db.Integer, db.ForeignKey("lists.id"), nullable=False)
     parent_list = relationship("List", back_populates="task")
 
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(250), unique=True, nullable=False)
+    password = db.Column(db.String(250), nullable=False)
+    list = relationship("List", back_populates="parent_user")
+
+
 # db.create_all()
 
 
-# TODO: add ability to log in/create users
+# TODO: update navbar based on user logged in/out
 # TODO: add in reminders (maybe email?)
 # TODO: move dropdown to navbar
 # TODO: change to using environment variables
@@ -45,8 +66,13 @@ class Task(db.Model):
 
 @app.route('/', methods=["GET", "POST"])
 def home():
-    all_lists = List.query.all()
-    return render_template("index.html", all_lists=all_lists)
+    if current_user.is_authenticated:
+        all_lists = List.query.filter_by(user_id=current_user.id).all()
+    else:
+        all_lists = []
+    return render_template("index.html",
+                           all_lists=all_lists,
+                           current_user=current_user)
 
 
 @app.route('/view-list/<int:list_id>', methods=["GET", "POST"])
@@ -88,7 +114,8 @@ def create_new_list():
     new_list_form = NewListForm()
     if new_list_form.validate_on_submit():
         new_list = List(
-            list_name=new_list_form.list_name.data
+            list_name=new_list_form.list_name.data,
+            user_id=current_user.id
         )
         db.session.add(new_list)
         db.session.commit()
@@ -117,6 +144,52 @@ def delete_list(list_id):
 def delete_check(list_id):
     list_to_delete = List.query.filter_by(id=list_id).first()
     return render_template("delete_check.html", list_to_delete=list_to_delete)
+
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    register_form = RegisterForm()
+    if register_form.validate_on_submit():
+        user_exists = User.query.filter_by(username=register_form.username.data).first()
+        if user_exists:
+            flash("User already registered")
+            return redirect(url_for('register'))
+        else:
+            new_user = User(
+                username=register_form.username.data,
+                password=generate_password_hash(register_form.password.data)
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user)
+            return redirect(url_for('home'))
+    return render_template('register.html', register_form=register_form)
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        # check user exists
+        user_to_login = User.query.filter_by(username=login_form.username.data).first()
+        if user_to_login:
+            if check_password_hash(user_to_login.password, login_form.password.data):
+                login_user(user_to_login)
+                return redirect(url_for('home'))
+            else:
+                flash("Incorrect password")
+                return redirect(url_for('login'))
+        else:
+            flash("User doesn't exist")
+            return redirect(url_for('login'))
+    return render_template('login.html', login_form=login_form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash("User logged out")
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

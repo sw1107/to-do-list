@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if current_user.is_authenticated: %}
 <div class="container">
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
@@ -16,4 +17,9 @@
         </div>
     </div>
 </div>
+{% else: %}
+<div class="container">
+    <h4>Please log in / sign up to view and create lists</h4>
+</div>
+{% endif %}
 {% endblock %}
