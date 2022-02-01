@@ -1,36 +1,46 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block styling %}
-{{ super() }}
-{% endblock %}
-
 {% block content %}
 
 <div class="container">
+
     <div class="row">
         <div class="col">
             {{ wtf.quick_form(task_form, novalidate=True, extra_classes="task_form") }}
         </div>
         <div class="col">
-            <h1>To Do</h1>
-            <ul>
+            <h1> {{ list_name }} </h1>
+            <h3>To Do</h3>
+            <ul class="to-do-list">
                 {% for task in incomplete_tasks %}
+                {% if date_today > task.due_date %}
+                <li class="overdue-task">
+                    <a href="{{ url_for('mark_complete', list_id=list_id, task_id=task.id) }}"
+                       class="link-primary">✔️</a>
+                    {{ task.task_description }}, due {{ task.due_date}}
+                    <a href="{{ url_for('delete_task', list_id=list_id, task_id=task.id) }}" class="link-primary">❌</a>
+                </li>
+                {% else %}
                 <li>
                     <a href="{{ url_for('mark_complete', list_id=list_id, task_id=task.id) }}"
                        class="link-primary">✔️</a>
                     {{ task.task_description }}, due {{ task.due_date}}
                     <a href="{{ url_for('delete_task', list_id=list_id, task_id=task.id) }}" class="link-primary">❌</a>
                 </li>
+
+                {% endif %}
+
+
                 {% endfor %}
             </ul>
-            <h1>Completed</h1>
+            <h3>Completed</h3>
             <ul>
                 {% for task in complete_tasks %}
-                <li> {{ task.task_description }}</li>
+                <li>{{ task.task_description }}</li>
                 {% endfor %}
             </ul>
-            <a href="{{ url_for('delete_list', list_id=list_id) }}">Delete List</a>
+            <a href="{{ url_for('delete_check', list_id=list_id) }}">Delete List</a>
         </div>
     </div>
 

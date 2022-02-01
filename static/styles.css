@@ -10,3 +10,16 @@ body {
 .navbar-brand {
     font-family: 'Roboto-Black', sans-serif;
 }
+
+.alert {
+    margin: 0;
+}
+
+.to-do-list {
+    list-style: none;
+    padding: 0px 20px;
+}
+
+.overdue-task {
+    color: red;
+}

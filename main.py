@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, url_for
+from datetime import date
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -34,10 +35,6 @@ class Task(db.Model):
 # db.create_all()
 
 
-# TODO: add date completed
-# TODO: add in conformation before deleting list
-# TODO: add ability to sort by date
-# TODO: change overdue tasks to red
 # TODO: add ability to log in/create users
 # TODO: add in reminders (maybe email?)
 # TODO: move dropdown to navbar
@@ -55,8 +52,10 @@ def home():
 @app.route('/view-list/<int:list_id>', methods=["GET", "POST"])
 def view_list(list_id):
     task_form = TaskForm()
-    incomplete_tasks = Task.query.filter_by(list_id=list_id, is_completed=False).all()
+    incomplete_tasks = Task.query.filter_by(list_id=list_id, is_completed=False).order_by(Task.due_date).all()
     complete_tasks = Task.query.filter_by(list_id=list_id, is_completed=True).all()
+    list_name = List.query.get(list_id).list_name
+    date_today = date.today()
     if task_form.validate_on_submit():
         new_task = Task(
             is_completed=False,
@@ -68,6 +67,8 @@ def view_list(list_id):
         db.session.commit()
         return redirect(url_for('view_list', list_id=list_id))
     return render_template("view-list.html",
+                           date_today=date_today,
+                           list_name=list_name,
                            list_id=list_id,
                            incomplete_tasks=incomplete_tasks,
                            complete_tasks=complete_tasks,
@@ -91,7 +92,7 @@ def create_new_list():
         )
         db.session.add(new_list)
         db.session.commit()
-        return redirect('/')
+        return redirect(url_for('view_list', list_id=new_list.id))
     return render_template("create-new-list.html", new_list_form=new_list_form)
 
 
@@ -108,7 +109,14 @@ def delete_list(list_id):
     Task.query.filter_by(list_id=list_id).delete()
     List.query.filter_by(id=list_id).delete()
     db.session.commit()
-    return redirect('/')
+    flash('List Deleted')
+    return redirect(url_for('home'))
+
+
+@app.route('/delete_check/<int:list_id>')
+def delete_check(list_id):
+    list_to_delete = List.query.filter_by(id=list_id).first()
+    return render_template("delete_check.html", list_to_delete=list_to_delete)
 
 
 if __name__ == '__main__':
