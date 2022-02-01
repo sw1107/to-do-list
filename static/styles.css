@@ -1,4 +1,12 @@
-.task_form {
-    width: 30%;
+body {
+    font-family: 'Roboto', sans-serif;
 }
 
+.container {
+    margin: 0;
+    padding: 25px;
+}
+
+.navbar-brand {
+    font-family: 'Roboto-Black', sans-serif;
+}

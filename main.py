@@ -34,13 +34,13 @@ class Task(db.Model):
 # db.create_all()
 
 
-# TODO: improve website styling
 # TODO: add date completed
 # TODO: add in conformation before deleting list
 # TODO: add ability to sort by date
 # TODO: change overdue tasks to red
 # TODO: add ability to log in/create users
 # TODO: add in reminders (maybe email?)
+# TODO: move dropdown to navbar
 # TODO: change to using environment variables
 # TODO: write README, add requirements file
 # TODO: Update db to be able to publish
