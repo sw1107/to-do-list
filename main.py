@@ -6,16 +6,17 @@ from flask_login import UserMixin, LoginManager, login_user, current_user, logou
 from sqlalchemy.orm import relationship
 from forms import TaskForm, NewListForm, RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = Flask(__name__)
 
 Bootstrap(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///to-do-list.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-app.config['SECRET_KEY'] = 'secretsecretsecret'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,11 +57,6 @@ class User(UserMixin, db.Model):
 # db.create_all()
 
 
-# TODO: update navbar based on user logged in/out
-# TODO: add in reminders (maybe email?)
-# TODO: move dropdown to navbar
-# TODO: change to using environment variables
-# TODO: write README, add requirements file
 # TODO: Update db to be able to publish
 
 
