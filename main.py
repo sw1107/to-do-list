@@ -1,4 +1,5 @@
 from datetime import date
+from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +8,8 @@ from sqlalchemy.orm import relationship
 from forms import TaskForm, NewListForm, RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+
+load_dotenv()
 
 app = Flask(__name__)
 
