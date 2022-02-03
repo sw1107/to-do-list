@@ -19,9 +19,11 @@ uri = os.environ.get('DATABASE_URL')
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = uri
+# app.config['SQLALCHEMY_DATABASE_URI'] = uri
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///to-do-list.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
@@ -62,9 +64,6 @@ class User(UserMixin, db.Model):
 
 
 db.create_all()
-
-
-# TODO: Update db to be able to publish
 
 
 @app.route('/', methods=["GET", "POST"])
