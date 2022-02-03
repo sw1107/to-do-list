@@ -15,9 +15,11 @@ app = Flask(__name__)
 
 Bootstrap(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', "sqlite:///to-do-list.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+postgres://
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
