@@ -61,7 +61,7 @@ class User(UserMixin, db.Model):
     list = relationship("List", back_populates="parent_user")
 
 
-# db.create_all()
+db.create_all()
 
 
 # TODO: Update db to be able to publish
