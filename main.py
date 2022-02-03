@@ -23,8 +23,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-postgres://
-
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 login_manager = LoginManager()
