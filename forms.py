@@ -10,6 +10,12 @@ class TaskForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
+class EditTaskForm(FlaskForm):
+    task_description = StringField("Task", validators=[DataRequired()])
+    due_date = DateField("Due Date", default=date.today())
+    submit = SubmitField("Submit")
+
+
 class NewListForm(FlaskForm):
     list_name = StringField("List", validators=[DataRequired()])
     submit = SubmitField("Submit")

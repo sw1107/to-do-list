@@ -5,9 +5,19 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, current_user, logout_user
 from sqlalchemy.orm import relationship
-from forms import TaskForm, NewListForm, RegisterForm, LoginForm
+from forms import TaskForm, NewListForm, RegisterForm, LoginForm, EditTaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+
+# add ability to edit tasks
+# add placeholder for items under list and under completed
+# TODO: create summary page of items due today
+# TODO: build login required pages
+# TODO: build admin required pages (user manager?)
+
+# TODO: Move list dropdown to navbar
+# TODO: check on mobile, tablet
+# TODO: improve styling
 
 load_dotenv()
 
@@ -130,6 +140,22 @@ def delete_task(list_id, task_id):
     db.session.delete(task_to_delete)
     db.session.commit()
     return redirect(url_for('view_list', list_id=list_id))
+
+
+@app.route('/edit_task/<int:list_id>/<int:task_id>', methods=["GET", "POST"])
+def edit_task(list_id, task_id):
+    edit_task_form = EditTaskForm()
+    task_to_edit = Task.query.get(task_id)
+    if edit_task_form.validate_on_submit():
+        task_to_edit.task_description = edit_task_form.task_description.data
+        task_to_edit.due_date = edit_task_form.due_date.data
+        db.session.commit()
+        return redirect(url_for('view_list', list_id=list_id))
+    else:
+        edit_task_form.task_description.default = task_to_edit.task_description
+        edit_task_form.due_date.default = task_to_edit.due_date
+        edit_task_form.process()
+        return render_template('edit-task.html', list_id=list_id, task_id=task_id, edit_task_form=edit_task_form)
 
 
 @app.route('/delete_list/<int:list_id>')
