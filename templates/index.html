@@ -3,23 +3,54 @@
 {% block content %}
 {% if current_user.is_authenticated: %}
 <div class="container">
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-            Choose a List
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            {% for list in all_lists %}
-            <a class="dropdown-item" href="{{ url_for('view_list', list_id=list.id) }}">{{ list.list_name }}</a>
-            {% endfor %}
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ url_for('create_new_list') }}">Create new list</a>
+
+    <div class="row">
+        <div class="col">
+
+            <h3>Tasks Due Today</h3>
+            {% if not tasks_due_today %}
+                <i>you have no tasks due today</i>
+            {% else %}
+                <ul>
+                    {% for list in tasks_due_today %}
+                        <li><a href="{{ url_for('view_list', list_id=list.id) }}">{{ list.list_name }}</a></li>
+                            <ul>
+                                {% for task in tasks_due_today[list] %}
+                                    <li>{{ task }}</li>
+                                {% endfor %}
+                            </ul>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        </div>
+        <div class="col">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Choose a List
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for list in all_lists %}
+                    <a class="dropdown-item" href="{{ url_for('view_list', list_id=list.id) }}">{{ list.list_name }}</a>
+                    {% endfor %}
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ url_for('create_new_list') }}">Create new list</a>
+                </div>
+            </div>
         </div>
     </div>
+
+
+
+
+
 </div>
 {% else: %}
 <div class="container">
     <p>Please log in / sign up to view and create lists</p>
 </div>
+
+
 {% endif %}
 {% endblock %}

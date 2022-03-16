@@ -9,15 +9,13 @@ from forms import TaskForm, NewListForm, RegisterForm, LoginForm, EditTaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
-# add ability to edit tasks
-# add placeholder for items under list and under completed
-# TODO: create summary page of items due today
+# create summary page of items due today
 # TODO: build login required pages
 # TODO: build admin required pages (user manager?)
 
-# TODO: Move list dropdown to navbar
-# TODO: check on mobile, tablet
 # TODO: improve styling
+# TODO: check on mobile, tablet
+# TODO: Move list dropdown to navbar?
 
 load_dotenv()
 
@@ -79,10 +77,20 @@ db.create_all()
 def home():
     if current_user.is_authenticated:
         all_lists = List.query.filter_by(user_id=current_user.id).all()
+        date_today = date.today()
+        tasks_due_today = {list: [] for list in all_lists}
+        for list in all_lists:
+            tasks = Task.query.filter_by(list_id=list.id, due_date=date_today, is_completed=False).all()
+            if not tasks:
+                tasks_due_today.pop(list)
+            else:
+                tasks_due_today[list] = [task.task_description for task in tasks]
     else:
         all_lists = []
+        tasks_due_today = {}
     return render_template("index.html",
                            all_lists=all_lists,
+                           tasks_due_today=tasks_due_today,
                            current_user=current_user)
 
 
