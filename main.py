@@ -1,19 +1,20 @@
 from datetime import date
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, LoginManager, login_user, current_user, logout_user
+from flask_login import UserMixin, LoginManager, login_user, current_user, logout_user, login_required
 from sqlalchemy.orm import relationship
 from forms import TaskForm, NewListForm, RegisterForm, LoginForm, EditTaskForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from functools import wraps
 
-# create summary page of items due today
-# TODO: build login required pages
-# TODO: build admin required pages (user manager?)
+# add login_required
+# add admin required pages
 
 # TODO: improve styling
+# TODO: update README
 # TODO: check on mobile, tablet
 # TODO: Move list dropdown to navbar?
 
@@ -36,6 +37,15 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.id != 1:
+            abort(403, description="Admin Only")
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 @login_manager.user_loader
@@ -95,6 +105,7 @@ def home():
 
 
 @app.route('/view-list/<int:list_id>', methods=["GET", "POST"])
+@login_required
 def view_list(list_id):
     task_form = TaskForm()
     incomplete_tasks = Task.query.filter_by(list_id=list_id, is_completed=False).order_by(Task.due_date).all()
@@ -121,6 +132,7 @@ def view_list(list_id):
 
 
 @app.route('/mark-complete/<int:list_id>/<int:task_id>')
+@login_required
 def mark_complete(list_id, task_id):
     post_to_mark_complete = Task.query.get(task_id)
     post_to_mark_complete.is_completed = True
@@ -129,6 +141,7 @@ def mark_complete(list_id, task_id):
 
 
 @app.route('/create-new-list', methods=["GET", "POST"])
+@login_required
 def create_new_list():
     new_list_form = NewListForm()
     if new_list_form.validate_on_submit():
@@ -143,6 +156,7 @@ def create_new_list():
 
 
 @app.route('/delete-task/<int:list_id>/<int:task_id>')
+@login_required
 def delete_task(list_id, task_id):
     task_to_delete = Task.query.get(task_id)
     db.session.delete(task_to_delete)
@@ -151,6 +165,7 @@ def delete_task(list_id, task_id):
 
 
 @app.route('/edit_task/<int:list_id>/<int:task_id>', methods=["GET", "POST"])
+@login_required
 def edit_task(list_id, task_id):
     edit_task_form = EditTaskForm()
     task_to_edit = Task.query.get(task_id)
@@ -167,6 +182,7 @@ def edit_task(list_id, task_id):
 
 
 @app.route('/delete_list/<int:list_id>')
+@login_required
 def delete_list(list_id):
     Task.query.filter_by(list_id=list_id).delete()
     List.query.filter_by(id=list_id).delete()
@@ -176,6 +192,7 @@ def delete_list(list_id):
 
 
 @app.route('/delete_check/<int:list_id>')
+@login_required
 def delete_check(list_id):
     list_to_delete = List.query.filter_by(id=list_id).first()
     return render_template("delete_check.html", list_to_delete=list_to_delete)
@@ -221,10 +238,19 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     logout_user()
     flash("User logged out")
     return redirect(url_for('home'))
+
+
+@app.route('/admin-page')
+@admin_only
+def admin_page():
+    all_users = User.query.all()
+    return render_template('admin-page.html',
+                           all_users=all_users)
 
 
 if __name__ == '__main__':
