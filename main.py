@@ -10,14 +10,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from functools import wraps
 
-# add login_required
-# add admin required pages
-
-# TODO: improve styling
-# TODO: update README
-# TODO: check on mobile, tablet
-# TODO: Move list dropdown to navbar?
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -181,7 +173,7 @@ def edit_task(list_id, task_id):
         return render_template('edit-task.html', list_id=list_id, task_id=task_id, edit_task_form=edit_task_form)
 
 
-@app.route('/delete_list/<int:list_id>')
+@app.route('/delete-list/<int:list_id>')
 @login_required
 def delete_list(list_id):
     Task.query.filter_by(list_id=list_id).delete()
@@ -191,11 +183,11 @@ def delete_list(list_id):
     return redirect(url_for('home'))
 
 
-@app.route('/delete_check/<int:list_id>')
+@app.route('/delete-check/<int:list_id>')
 @login_required
 def delete_check(list_id):
     list_to_delete = List.query.filter_by(id=list_id).first()
-    return render_template("delete_check.html", list_to_delete=list_to_delete)
+    return render_template("delete-check.html", list_to_delete=list_to_delete)
 
 
 @app.route('/register', methods=["GET", "POST"])

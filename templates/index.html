@@ -7,13 +7,13 @@
     <div class="row">
         <div class="col">
 
-            <h3>Tasks Due Today</h3>
+            <h4>Tasks Due Today</h4>
             {% if not tasks_due_today %}
-                <i>you have no tasks due today</i>
+                <p><i>you have no tasks due today</i></p>
             {% else %}
                 <ul>
                     {% for list in tasks_due_today %}
-                        <li><a href="{{ url_for('view_list', list_id=list.id) }}">{{ list.list_name }}</a></li>
+                        <li><a class="black-text-link" href="{{ url_for('view_list', list_id=list.id) }}">{{ list.list_name }}</a></li>
                             <ul>
                                 {% for task in tasks_due_today[list] %}
                                     <li>{{ task }}</li>
@@ -23,8 +23,8 @@
                 </ul>
             {% endif %}
 
-        </div>
-        <div class="col">
+<!--        </div>-->
+<!--        <div class="col">-->
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">

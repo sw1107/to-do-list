@@ -4,8 +4,8 @@
 
 <div class="container">
     <p>Are you sure you want to delete {{ list_to_delete.list_name }}?</p>
-    <a class="link-primary" href="{{ url_for('delete_list', list_id=list_to_delete.id) }}">Delete</a>
-    <a class="link-primary" href="{{ url_for('view_list', list_id=list_to_delete.id) }}">Cancel</a>
+    <a class="black-text-link" href="{{ url_for('delete_list', list_id=list_to_delete.id) }}">Delete</a>
+    <a class="black-text-link" href="{{ url_for('view_list', list_id=list_to_delete.id) }}">Cancel</a>
     {% if error %}
         <p class=error><strong>Error:</strong> {{ error }}
     {% endif %}

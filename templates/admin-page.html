@@ -2,14 +2,15 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
-
-<h3>There are currently {{ all_users | count }} users </h3>
-<h3>Usernames</h3>
-<ul>
-{% for user in all_users %}
-    <li>{{ user.username }}</li>
-{% endfor %}
-</ul>
+<div class="container">
+    <h4>There are currently {{ all_users | count }} users.</h4>
+    <h4>Usernames:</h4>
+    <ul>
+    {% for user in all_users %}
+        <li>{{ user.username }}</li>
+    {% endfor %}
+    </ul>
+</div>
 
 
 
